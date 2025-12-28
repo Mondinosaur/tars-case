@@ -42,7 +42,10 @@
 		functions,
 		selectedFolder,
 		pinnedChats,
-		showEmbeds
+		showEmbeds,
+		personaMode,
+		tarsSettings,
+		caseSettings
 	} from '$lib/stores';
 
 	import {
@@ -56,6 +59,7 @@
 		getCodeBlockContents,
 		isYoutubeUrl
 	} from '$lib/utils';
+	import { buildSystemPrompt } from '$lib/utils/personas';
 	import { AudioQueue } from '$lib/utils/audio';
 
 	import {
@@ -89,6 +93,7 @@
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
+	import ModeToggle from './ModeToggle.svelte';
 	import ChatControls from './ChatControls.svelte';
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
 	import Placeholder from './Placeholder.svelte';
@@ -1750,15 +1755,66 @@
 					const chatEventEmitter = await getChatEventEmitter(model.id, _chatId);
 
 					scrollToBottom();
-					await sendMessageSocket(
-						model,
-						messages && messages.length > 0
-							? messages
-							: createMessagesList(_history, responseMessageId),
-						_history,
-						responseMessageId,
-						_chatId
-					);
+					
+					if ($personaMode === 'both') {
+						// Create second response message for CASE
+						const caseResponseMessageId = uuidv4();
+						const caseResponseMessage = {
+							parentId: parentId,
+							id: caseResponseMessageId,
+							childrenIds: [],
+							role: 'assistant',
+							content: '',
+							model: model.id,
+							modelName: `CASE (${model.name ?? model.id})`,
+							modelIdx: _modelIdx,
+							timestamp: Math.floor(Date.now() / 1000)
+						};
+						history.messages[caseResponseMessageId] = caseResponseMessage;
+						if (parentId !== null && history.messages[parentId]) {
+							history.messages[parentId].childrenIds.push(caseResponseMessageId);
+						}
+						
+						// Update first response message name to TARS
+						history.messages[responseMessageId].modelName = `TARS (${model.name ?? model.id})`;
+						
+						// Update _history to include the new CASE message
+						_history = JSON.parse(JSON.stringify(history));
+						
+						// Make parallel calls
+						await Promise.all([
+							sendMessageSocket(
+								model,
+								messages && messages.length > 0
+									? messages
+									: createMessagesList(_history, responseMessageId),
+								_history,
+								responseMessageId,
+								_chatId,
+								'tars'
+							),
+							sendMessageSocket(
+								model,
+								messages && messages.length > 0
+									? messages
+									: createMessagesList(_history, caseResponseMessageId),
+								_history,
+								caseResponseMessageId,
+								_chatId,
+								'case'
+							)
+						]);
+					} else {
+						await sendMessageSocket(
+							model,
+							messages && messages.length > 0
+								? messages
+								: createMessagesList(_history, responseMessageId),
+							_history,
+							responseMessageId,
+							_chatId
+						);
+					}
 
 					if (chatEventEmitter) clearInterval(chatEventEmitter);
 				} else {
@@ -1812,7 +1868,7 @@
 		return features;
 	};
 
-	const sendMessageSocket = async (model, _messages, _history, responseMessageId, _chatId) => {
+	const sendMessageSocket = async (model, _messages, _history, responseMessageId, _chatId, personaOverride: 'tars' | 'case' | null = null) => {
 		const responseMessage = _history.messages[responseMessageId];
 		const userMessage = _history.messages[responseMessage.parentId];
 
@@ -1864,11 +1920,20 @@
 			params?.stream_response ??
 			true;
 
+		// Determine system prompt based on persona mode
+		let systemContent = params?.system ?? $settings?.system ?? '';
+		const effectivePersona = personaOverride ?? $personaMode;
+		if (effectivePersona === 'tars') {
+			systemContent = buildSystemPrompt('tars', $tarsSettings);
+		} else if (effectivePersona === 'case') {
+			systemContent = buildSystemPrompt('case', $caseSettings);
+		}
+
 		let messages = [
-			params?.system || $settings.system
+			systemContent
 				? {
 						role: 'system',
-						content: `${params?.system ?? $settings?.system ?? ''}`
+						content: systemContent
 					}
 				: undefined,
 			..._messages.map((message) => ({
@@ -2468,6 +2533,10 @@
 							}
 						}}
 					/>
+
+					<div class="flex justify-center py-2">
+						<ModeToggle />
+					</div>
 
 					<div class="flex flex-col flex-auto z-10 w-full @container overflow-auto">
 						{#if ($settings?.landingPageMode === 'chat' && !$selectedFolder) || createMessagesList(history, history.currentId).length > 0}
