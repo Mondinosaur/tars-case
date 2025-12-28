@@ -301,3 +301,38 @@ export type SessionUser = {
 	role: string;
 	profile_image_url: string;
 };
+
+// ============================================
+// TARS/CASE Persona System
+// ============================================
+
+export type PersonaMode = 'off' | 'tars' | 'case' | 'both';
+
+export type PersonaSettings = {
+	humor: number;
+	honesty: number;
+	verbosity: number;
+	directness: number;
+	warmth: number;
+	riskTolerance: number;
+};
+
+export const personaMode: Writable<PersonaMode> = writable('off');
+
+export const tarsSettings: Writable<PersonaSettings> = writable({
+	humor: 75,
+	honesty: 90,
+	verbosity: 70,
+	directness: 65,
+	warmth: 60,
+	riskTolerance: 50
+});
+
+export const caseSettings: Writable<PersonaSettings> = writable({
+	humor: 20,
+	honesty: 95,
+	verbosity: 30,
+	directness: 90,
+	warmth: 40,
+	riskTolerance: 40
+});
