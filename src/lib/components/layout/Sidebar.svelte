@@ -864,7 +864,7 @@
 						id="sidebar-webui-name"
 						class="self-center font-semibold text-lg tracking-wider text-gray-850 dark:text-white"
 					>
-						STELLAR
+						Juno
 					</div>
 				</a>
 				<Tooltip

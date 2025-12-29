@@ -156,10 +156,11 @@
   },
   "build": {
     "appId": "com.stellar.app",
-    "productName": "STELLAR",
+    "productName": "Juno",
     "mac": {
       "category": "public.app-category.productivity",
-      "target": "dir"
+      "target": "dir",
+      "icon": "build/icon.icns"
     },
     "files": [
       "electron.cjs",

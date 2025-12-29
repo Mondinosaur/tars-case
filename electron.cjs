@@ -4,7 +4,7 @@ const path = require('path');
 const http = require('http');
 const os = require('os');
 
-app.setName('STELLAR');
+app.setName('Juno');
 
 let mainWindow;
 let ollamaProcess;
@@ -71,7 +71,7 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
-    title: 'STELLAR',
+    title: 'Juno',
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 15, y: 15 },
     webPreferences: {
@@ -81,7 +81,7 @@ const createWindow = async () => {
     }
   });
 
-  mainWindow.loadURL('data:text/html,<html><body style="background:#1a1a1a;color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:system-ui;"><div style="font-size:32px;font-weight:600;letter-spacing:4px;margin-bottom:20px;">STELLAR</div><div style="font-size:16px;opacity:0.6;">Starting services...</div></body></html>');
+  mainWindow.loadURL('data:text/html,<html><body style="background:#1a1a1a;color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:system-ui;"><div style="font-size:32px;font-weight:600;letter-spacing:4px;margin-bottom:20px;">Juno</div><div style="font-size:16px;opacity:0.6;">Starting services...</div></body></html>');
 
   mainWindow.on('page-title-updated', (e) => e.preventDefault());
 
