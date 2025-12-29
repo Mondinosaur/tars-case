@@ -22,7 +22,8 @@
 		settings,
 		temporaryChatEnabled,
 		TTSWorker,
-		user
+		user,
+		personaMode
 	} from '$lib/stores';
 	import { synthesizeOpenAISpeech } from '$lib/apis/audio';
 	import { imageGenerations } from '$lib/apis/images';
@@ -620,22 +621,27 @@
 
 {#key message.id}
 	<div
-		class=" flex w-full message-{message.id}"
+		class=" flex w-full message-{message.id} {message.modelName === 'TARS' ? 'border-l-2 border-blue-500/50 pl-3' : ''} {message.modelName === 'CASE' ? 'border-l-2 border-amber-500/50 pl-3' : ''}"
 		id="message-{message.id}"
 		dir={$settings.chatDirection}
 	>
-		<div class={`shrink-0 ltr:mr-3 rtl:ml-3 hidden @lg:flex mt-1 `}>
-			<ProfileImage
-				src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${model?.id}&lang=${$i18n.language}`}
-				className={'size-8 assistant-message-profile-image'}
-			/>
-		</div>
+		{#if !message.modelName}
+			<div class={`shrink-0 ltr:mr-3 rtl:ml-3 hidden @lg:flex mt-1 `}>
+				<ProfileImage
+					src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${model?.id}&lang=${$i18n.language}`}
+					className={'size-8 assistant-message-profile-image'}
+				/>
+			</div>
+		{/if}
 
 		<div class="flex-auto w-0 pl-1 relative">
 			<Name>
 				<Tooltip content={model?.name ?? message.model} placement="top-start">
 					<span id="response-message-model-name" class="line-clamp-1 text-black dark:text-white">
-						{model?.name ?? message.model}
+						{message.modelName ?? model?.name ?? message.model}
+						{#if message.modelName}
+							<span class="text-gray-400 dark:text-gray-500 font-normal ml-1">({(model?.name ?? message.model)?.replace(':latest', '')})</span>
+						{/if}
 					</span>
 				</Tooltip>
 

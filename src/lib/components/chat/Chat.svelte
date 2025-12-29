@@ -60,6 +60,7 @@
 		isYoutubeUrl
 	} from '$lib/utils';
 	import { buildSystemPrompt } from '$lib/utils/personas';
+	import { parseCommand } from '$lib/utils/commandParser';
 	import { AudioQueue } from '$lib/utils/audio';
 
 	import {
@@ -1546,6 +1547,17 @@
 	const submitPrompt = async (userPrompt, { _raw = false } = {}) => {
 		console.log('submitPrompt', userPrompt, $chatId);
 
+		// Check for persona commands
+		const commandResult = parseCommand(userPrompt);
+		if (commandResult.isCommand) {
+			if (commandResult.handled) {
+				toast.success(commandResult.message || 'Command executed');
+			} else {
+				toast.error(commandResult.message || 'Invalid command');
+			}
+			return;
+		}
+
 		const _selectedModels = selectedModels.map((modelId) =>
 			$models.map((m) => m.id).includes(modelId) ? modelId : ''
 		);
@@ -1766,7 +1778,7 @@
 							role: 'assistant',
 							content: '',
 							model: model.id,
-							modelName: `CASE (${model.name ?? model.id})`,
+							modelName: 'CASE',
 							modelIdx: _modelIdx,
 							timestamp: Math.floor(Date.now() / 1000)
 						};
@@ -1776,7 +1788,7 @@
 						}
 						
 						// Update first response message name to TARS
-						history.messages[responseMessageId].modelName = `TARS (${model.name ?? model.id})`;
+						history.messages[responseMessageId].modelName = 'TARS';
 						
 						// Update _history to include the new CASE message
 						_history = JSON.parse(JSON.stringify(history));

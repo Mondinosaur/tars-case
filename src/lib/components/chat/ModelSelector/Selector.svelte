@@ -394,11 +394,12 @@
 				);
 			}}
 		>
-			{#if selectedModel}
-				{selectedModel.label}
-			{:else}
-				{placeholder}
-			{/if}
+			<span class="flex items-center gap-2">
+				<span>Model</span>
+				{#if selectedModel}
+					<span class="text-gray-400 dark:text-gray-500 text-sm font-normal">({selectedModel.label?.replace(':latest', '')})</span>
+				{/if}
+			</span>
 			<ChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
 		</div>
 	</DropdownMenu.Trigger>

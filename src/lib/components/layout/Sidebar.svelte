@@ -859,26 +859,12 @@
 			<div
 				class="sidebar px-[0.5625rem] pt-2 pb-1.5 flex justify-between space-x-1 text-gray-600 dark:text-gray-400 sticky top-0 z-10 -mb-3"
 			>
-				<a
-					class="flex items-center rounded-xl size-8.5 h-full justify-center hover:bg-gray-100/50 dark:hover:bg-gray-850/50 transition no-drag-region"
-					href="/"
-					draggable="false"
-					on:click={newChatHandler}
-				>
-					<img
-						crossorigin="anonymous"
-						src="{WEBUI_BASE_URL}/static/favicon.png"
-						class="sidebar-new-chat-icon size-6 rounded-full"
-						alt=""
-					/>
-				</a>
-
 				<a href="/" class="flex flex-1 px-1.5" on:click={newChatHandler}>
 					<div
 						id="sidebar-webui-name"
-						class=" self-center font-medium text-gray-850 dark:text-white font-primary"
+						class="self-center font-semibold text-lg tracking-wider text-gray-850 dark:text-white"
 					>
-						{$WEBUI_NAME}
+						STELLAR
 					</div>
 				</a>
 				<Tooltip
