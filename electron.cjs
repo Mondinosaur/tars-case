@@ -13,6 +13,8 @@ let frontendProcess;
 
 const HOME = os.homedir();
 const PROJECT_DIR = path.join(HOME, 'Documents/tars-case');
+const NPM_PATH = path.join(HOME, '.nvm/versions/node/v20.19.5/bin');
+const PATH_ENV = `/opt/homebrew/bin:${NPM_PATH}:/usr/local/bin:${process.env.PATH}`;
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -27,6 +29,7 @@ const waitForServices = async () => {
   for (let i = 0; i < 60; i++) {
     const backend = await checkService(8080);
     const frontend = await checkService(5173);
+    console.log(`Check ${i}: backend=${backend}, frontend=${frontend}`);
     if (backend && frontend) return true;
     await wait(1000);
   }
@@ -34,22 +37,23 @@ const waitForServices = async () => {
 };
 
 const startServices = () => {
+  const env = { ...process.env, PATH: PATH_ENV };
+
   console.log('Starting Ollama...');
-  ollamaProcess = spawn('/opt/homebrew/bin/ollama', ['serve']);
+  ollamaProcess = spawn('/opt/homebrew/bin/ollama', ['serve'], { env });
+  ollamaProcess.stderr?.on('data', (d) => console.log(`Ollama: ${d}`));
   
   console.log('Starting Backend...');
   backendProcess = spawn('/bin/bash', ['-c', 
     `cd "${PROJECT_DIR}/backend" && source venv/bin/activate && uvicorn open_webui.main:app --host 0.0.0.0 --port 8080`
-  ], {
-    env: { ...process.env, PATH: `/opt/homebrew/bin:${process.env.PATH}` }
-  });
+  ], { env });
+  backendProcess.stderr?.on('data', (d) => console.log(`Backend: ${d}`));
 
   console.log('Starting Frontend...');
   frontendProcess = spawn('/bin/bash', ['-c',
     `cd "${PROJECT_DIR}" && npm run dev`
-  ], {
-    env: { ...process.env, PATH: `/opt/homebrew/bin:${process.env.PATH}` }
-  });
+  ], { env });
+  frontendProcess.stderr?.on('data', (d) => console.log(`Frontend: ${d}`));
 };
 
 const stopServices = () => {
