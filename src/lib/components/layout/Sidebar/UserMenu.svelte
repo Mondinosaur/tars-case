@@ -9,7 +9,7 @@
 	import { getUsage } from '$lib/apis';
 	import { getSessionUser, userSignOut } from '$lib/apis/auths';
 
-	import { showSettings, mobile, showSidebar, showShortcuts, user, config } from '$lib/stores';
+	import { showSettings, mobile, showSidebar, showShortcuts, showControls, user, config } from '$lib/stores';
 
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
@@ -19,6 +19,7 @@
 	import Map from '$lib/components/icons/Map.svelte';
 	import Keyboard from '$lib/components/icons/Keyboard.svelte';
 	import ShortcutsModal from '$lib/components/chat/ShortcutsModal.svelte';
+	import PersonaSettingsModal from '$lib/components/chat/PersonaSettingsModal.svelte';
 	import Settings from '$lib/components/icons/Settings.svelte';
 	import Code from '$lib/components/icons/Code.svelte';
 	import UserGroup from '$lib/components/icons/UserGroup.svelte';
@@ -27,6 +28,8 @@
 	import UserStatusModal from './UserStatusModal.svelte';
 	import Emoji from '$lib/components/common/Emoji.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
+	import AdjustmentsHorizontal from '$lib/components/icons/AdjustmentsHorizontal.svelte';
+	import Knobs from '$lib/components/icons/Knobs.svelte';
 	import { updateUserStatus } from '$lib/apis/users';
 	import { toast } from 'svelte-sonner';
 
@@ -43,6 +46,7 @@
 	export let showActiveUsers = true;
 
 	let showUserStatusModal = false;
+	let showPersonaSettingsModal = false;
 
 	const dispatch = createEventDispatcher();
 
@@ -70,6 +74,7 @@
 </script>
 
 <ShortcutsModal bind:show={$showShortcuts} />
+<PersonaSettingsModal bind:show={showPersonaSettingsModal} />
 <UserStatusModal
 	bind:show={showUserStatusModal}
 	onSave={async () => {
@@ -220,6 +225,41 @@
 					<Settings className="w-5 h-5" strokeWidth="1.5" />
 				</div>
 				<div class=" self-center truncate">{$i18n.t('Settings')}</div>
+			</DropdownMenu.Item>
+
+			<DropdownMenu.Item
+				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
+				on:click={async () => {
+					show = false;
+					showPersonaSettingsModal = true;
+
+					if ($mobile) {
+						await tick();
+						showSidebar.set(false);
+					}
+				}}
+			>
+				<div class=" self-center mr-3">
+					<AdjustmentsHorizontal className="w-5 h-5" strokeWidth="1.5" />
+				</div>
+				<div class=" self-center truncate">{$i18n.t('Persona Settings')}</div>
+			</DropdownMenu.Item>
+
+			<DropdownMenu.Item
+				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
+				on:click={async () => {
+					show = false;
+					await showControls.set(!$showControls);
+					if ($mobile) {
+						await tick();
+						showSidebar.set(false);
+					}
+				}}
+			>
+				<div class=" self-center mr-3">
+					<Knobs className="w-5 h-5" strokeWidth="1" />
+				</div>
+				<div class=" self-center truncate">{$i18n.t('Controls')}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item

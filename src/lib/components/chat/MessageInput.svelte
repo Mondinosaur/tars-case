@@ -75,6 +75,8 @@
 	import Photo from '../icons/Photo.svelte';
 	import Wrench from '../icons/Wrench.svelte';
 	import Sparkles from '../icons/Sparkles.svelte';
+	import ChatBubbleDotted from '../icons/ChatBubbleDotted.svelte';
+	import ChatBubbleDottedChecked from '../icons/ChatBubbleDottedChecked.svelte';
 
 	import InputVariablesModal from './MessageInput/InputVariablesModal.svelte';
 	import Voice from '../icons/Voice.svelte';
@@ -1441,6 +1443,40 @@
 
 							<div class=" flex justify-between mt-0.5 mb-2.5 mx-0.5 max-w-full" dir="ltr">
 								<div class="ml-1 self-end flex items-center flex-1 max-w-[80%]">
+									{#if $_user?.role === 'user' ? ($_user?.permissions?.chat?.temporary ?? true) && !($_user?.permissions?.chat?.temporary_enforced ?? false) : true}
+										<Tooltip content={$i18n.t(`Temporary Chat`)}>
+											<button
+												class="flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition mr-1"
+												id="temporary-chat-button-input"
+												on:click={async () => {
+													if (($settings?.temporaryChatByDefault ?? false) && $temporaryChatEnabled) {
+														// for proper initNewChat handling
+														await temporaryChatEnabled.set(null);
+													} else {
+														await temporaryChatEnabled.set(!$temporaryChatEnabled);
+													}
+
+													await goto('/');
+
+													// add 'temporary-chat=true' to the URL
+													if ($temporaryChatEnabled) {
+														window.history.replaceState(null, '', '?temporary-chat=true');
+													} else {
+														window.history.replaceState(null, '', location.pathname);
+													}
+												}}
+											>
+												<div class=" m-auto self-center">
+													{#if $temporaryChatEnabled}
+														<ChatBubbleDottedChecked className=" size-4.5" strokeWidth="1.5" />
+													{:else}
+														<ChatBubbleDotted className=" size-4.5" strokeWidth="1.5" />
+													{/if}
+												</div>
+											</button>
+										</Tooltip>
+									{/if}
+
 									<InputMenu
 										bind:files
 										selectedModels={atSelectedModel ? [atSelectedModel.id] : selectedModels}
@@ -1711,7 +1747,7 @@
 											</Tooltip>
 										</div>
 									{:else}
-										{#if prompt !== '' && !history?.currentId && ($config?.features?.enable_notes ?? false) && ($user?.role === 'admin' || ($user?.permissions?.features?.notes ?? true))}
+										{#if prompt !== '' && !history?.currentId && ($config?.features?.enable_notes ?? false) && ($_user?.role === 'admin' || ($_user?.permissions?.features?.notes ?? true))}
 											<!-- {$i18n.t('Create Note')}  -->
 											<Tooltip content={$i18n.t('Create note')} className=" flex items-center">
 												<button

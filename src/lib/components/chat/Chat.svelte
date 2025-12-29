@@ -94,7 +94,6 @@
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
-	import ModeToggle from './ModeToggle.svelte';
 	import ChatControls from './ChatControls.svelte';
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
 	import Placeholder from './Placeholder.svelte';
@@ -2545,10 +2544,6 @@
 							}
 						}}
 					/>
-
-					<div class="flex justify-center py-2">
-						<ModeToggle />
-					</div>
 
 					<div class="flex flex-col flex-auto z-10 w-full @container overflow-auto">
 						{#if ($settings?.landingPageMode === 'chat' && !$selectedFolder) || createMessagesList(history, history.currentId).length > 0}
