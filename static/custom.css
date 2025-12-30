@@ -1,0 +1,4 @@
+/* Electron titlebar spacing - sidebar only */
+.sidebar, [data-sidebar], #sidebar {
+  padding-top: 30px !important;
+}

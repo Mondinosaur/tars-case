@@ -76,11 +76,19 @@
 		<div class="flex items-center gap-2">
 			<div class="flex items-center min-w-fit">
 				<Tooltip content={$user?.role === 'admin' ? (item?.value ?? '') : ''} placement="top-start">
-					<img
-						src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${item.model.id}&lang=${$i18n.language}`}
-						alt="Model"
-						class="rounded-full size-5 flex items-center"
-					/>
+					{#if item.model.id?.includes('arena') || item.label?.includes('Arena')}
+						<img
+							src="/arena-icon.png"
+							alt="Arena Model"
+							class="rounded-full size-5 flex items-center"
+						/>
+					{:else}
+						<img
+							src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${item.model.id}&lang=${$i18n.language}`}
+							alt="Model"
+							class="rounded-full size-5 flex items-center"
+						/>
+					{/if}
 				</Tooltip>
 			</div>
 
